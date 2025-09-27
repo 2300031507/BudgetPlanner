@@ -1,0 +1,68 @@
+version: '3.9'
+
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_DATABASE: project_purple
+      MYSQL_ROOT_PASSWORD: "@Crafcr143"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+
+  backend:
+    build:
+      context: ..
+      dockerfile: docker-project/dockerfile.backend
+    container_name: spring-backend
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/project_purple?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: "@Crafcr143"
+      SERVER_PORT: 8081
+      app.jwtSecret: '3t6w9z$C&F)J@NcRfUjXn2r5u8x/A?D(G+KbPeShVmYq3t6w9z$C&F)J@NcRfUjXn2r'
+      app.jwtExpirationInMs: 86400000
+    ports:
+      - "8081:8081"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker-project/dockerfile.frontend
+      args:
+        REACT_APP_API_URL: "http://spring-backend:8081/api/auth"
+    container_name: react-frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
