@@ -15,7 +15,10 @@ import { BudgetProvider } from './contexts/BudgetContext';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
+  if (loading) {
+    return null; // optionally render a loader component
+  }
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 

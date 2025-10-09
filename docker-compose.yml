@@ -21,8 +21,8 @@ services:
 
   backend:
     build:
-      context: ..
-      dockerfile: docker-project/dockerfile.backend
+      context: .
+      dockerfile: dockerfile.backend
     container_name: spring-backend
     depends_on:
       mysql-db:
@@ -32,7 +32,7 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: "@Crafcr143"
       SERVER_PORT: 8081
-      app.jwtSecret: '3t6w9z$C&F)J@NcRfUjXn2r5u8x/A?D(G+KbPeShVmYq3t6w9z$C&F)J@NcRfUjXn2r'
+      app.jwtSecret: '3t6w9z$$C&F)J@NcRfUjXn2r5u8x/A?D(G+KbPeShVmYq3t6w9z$$C&F)J@NcRfUjXn2r5u8x/A?D(G+KbPeShVmYq3t6w9z$$C&F)J@NcRfUjXn2r5u8x/A?D(G+KbPeShVmYq3t6w9z$$C&F)J@NcRfUjXn2r5u8'
       app.jwtExpirationInMs: 86400000
     ports:
       - "8081:8081"
@@ -46,16 +46,16 @@ services:
 
   frontend:
     build:
-      context: ..
-      dockerfile: docker-project/dockerfile.frontend
+      context: .
+      dockerfile: dockerfile.frontend
       args:
-        REACT_APP_API_URL: "http://spring-backend:8081/api/auth"
+        REACT_APP_API_URL: "/api"
     container_name: react-frontend
     depends_on:
       backend:
         condition: service_healthy
     ports:
-      - "80:80"
+      - "8085:80"
     networks:
       - app-network
 

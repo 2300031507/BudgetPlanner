@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 
 const BudgetContext = createContext();
-const API_URL = 'http://localhost:8081/api/budget'; // Backend API base URL
+const API_URL = '/api/budget'; // Backend API base URL (proxied by nginx)
 
 export const useBudget = () => {
   const context = useContext(BudgetContext);
@@ -107,7 +107,7 @@ export const BudgetProvider = ({ children }) => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ ...incomeItem, userId: user.id })
+        body: JSON.stringify(incomeItem)
       });
       const newIncome = await response.json();
       setIncome([...income, newIncome]);
@@ -128,7 +128,7 @@ export const BudgetProvider = ({ children }) => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ ...expenseItem, userId: user.id })
+        body: JSON.stringify(expenseItem)
       });
       const newExpense = await response.json();
       setExpenses([...expenses, newExpense]);
@@ -233,7 +233,7 @@ export const BudgetProvider = ({ children }) => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ ...goal, userId: user.id, currentAmount: 0 })
+        body: JSON.stringify(goal)
       });
       const newGoal = await response.json();
       setSavingsGoals([...savingsGoals, newGoal]);

@@ -1,9 +1,11 @@
 package com.projectpurple.backend.service;
 
 import com.projectpurple.backend.model.Expense;
+import com.projectpurple.backend.model.Income;
 import com.projectpurple.backend.model.SavingsGoal;
 import com.projectpurple.backend.model.User;
 import com.projectpurple.backend.repository.ExpenseRepository;
+import com.projectpurple.backend.repository.IncomeRepository;
 import com.projectpurple.backend.repository.SavingsGoalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,9 @@ import java.util.Optional;
 public class BudgetService {
     @Autowired
     private ExpenseRepository expenseRepository;
+
+    @Autowired
+    private IncomeRepository incomeRepository;
 
     @Autowired
     private SavingsGoalRepository savingsGoalRepository;
@@ -43,6 +48,29 @@ public class BudgetService {
 
     public void deleteExpense(Long id) {
         expenseRepository.deleteById(id);
+    }
+
+    // Income related methods
+    public Income addIncome(Income income, User user) {
+        income.setUser(user);
+        income.setDate(LocalDateTime.now());
+        return incomeRepository.save(income);
+    }
+
+    public List<Income> getIncomeByUser(User user) {
+        return incomeRepository.findByUserId(user.getId());
+    }
+
+    public Optional<Income> getIncomeById(Long id) {
+        return incomeRepository.findById(id);
+    }
+
+    public Income updateIncome(Income income) {
+        return incomeRepository.save(income);
+    }
+
+    public void deleteIncome(Long id) {
+        incomeRepository.deleteById(id);
     }
 
     // Savings Goal related methods

@@ -4,9 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { 
   TrendingUp, 
   LayoutDashboard, 
-  PieChart, 
   Target, 
-  FileText, 
   LogOut,
   Menu,
   X
@@ -26,9 +24,7 @@ const Layout = ({ children }) => {
 
   const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/expenses', icon: PieChart, label: 'Expenses' },
     { path: '/savings', icon: Target, label: 'Savings Goals' },
-    { path: '/reports', icon: FileText, label: 'Reports' },
   ];
 
   return (

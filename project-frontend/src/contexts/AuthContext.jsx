@@ -16,6 +16,26 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Prefer relative base; fallback to explicit frontend port if relative fails (helps when app opened on wrong port)
+  const apiBase = '/api';
+  const fallbackBase = 'http://localhost:8085/api';
+
+  const apiFetch = async (path, options = {}) => {
+    try {
+      const res = await fetch(`${apiBase}${path}`, options);
+      return res;
+    } catch (err) {
+      // Retry using explicit frontend origin to bypass mis-origin issues
+      try {
+        const res2 = await fetch(`${fallbackBase}${path}`, options);
+        return res2;
+      } catch (err2) {
+        // Re-throw last error for caller handling
+        throw err2;
+      }
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     const userData = localStorage.getItem('userData');
@@ -29,7 +49,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await apiFetch('/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -77,9 +97,9 @@ export const AuthProvider = ({ children }) => {
       };
     } catch (error) {
       console.error('Login error:', error);
-      return { 
-        success: false, 
-        error: 'Failed to connect to server. Please check your internet connection and try again.',
+      return {
+        success: false,
+        error: `Network error: ${error?.message || 'Unable to reach API'}`,
         status: 'network_error'
       };
     }
@@ -87,8 +107,8 @@ export const AuthProvider = ({ children }) => {
 
   const checkEmailAvailability = async (email) => {
     try {
-      const response = await fetch(
-        `/api/auth/check-email?email=${encodeURIComponent(email)}`,
+      const response = await apiFetch(
+        `/auth/check-email?email=${encodeURIComponent(email)}`,
         { method: 'GET', headers: { 'Content-Type': 'application/json' } }
       );
 
@@ -119,7 +139,7 @@ export const AuthProvider = ({ children }) => {
         };
       }
 
-      const response = await fetch('/api/auth/register', {
+      const response = await apiFetch('/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
@@ -161,9 +181,9 @@ export const AuthProvider = ({ children }) => {
       };
     } catch (error) {
       console.error('Signup error:', error);
-      return { 
-        success: false, 
-        error: 'Failed to connect to server. Please check your internet connection and try again.',
+      return {
+        success: false,
+        error: `Network error: ${error?.message || 'Unable to reach API'}`,
         status: 'network_error'
       };
     }
@@ -172,7 +192,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      await fetch('/api/auth/logout', {
+      await apiFetch('/auth/logout', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
       });
@@ -189,7 +209,7 @@ export const AuthProvider = ({ children }) => {
   const getCurrentUser = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch('/api/auth/me', {
+      const response = await apiFetch('/auth/me', {
         method: 'GET',
         headers: { 'Authorization': `Bearer ${token}` },
       });

@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, User, LogOut } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const Contact = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, user, logout } = useAuth();
   
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
   
   const navigateToPage = (path) => {
     navigate(path);
     scrollToTop();
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
 
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
@@ -80,8 +87,26 @@ const Contact = () => {
                 </button>
               </div>
               <div className="flex items-center space-x-3">
-                <Link to="/login" className="px-5 py-2 border border-light-green-600 text-light-green-600 rounded-lg hover:bg-light-green-50 transition-all duration-200">Login</Link>
-                <Link to="/signup" className="px-5 py-2 bg-gradient-to-r from-light-green-500 to-light-green-600 text-white rounded-lg hover:shadow-lg transition-all duration-200">Signup</Link>
+                {isAuthenticated ? (
+                  <>
+                    <Link to="/dashboard" className="px-5 py-2 border border-light-green-600 text-light-green-600 rounded-lg hover:bg-light-green-50 transition-all duration-200 flex items-center space-x-2">
+                      <User className="h-4 w-4" />
+                      <span>{user?.name || 'Dashboard'}</span>
+                    </Link>
+                    <button 
+                      onClick={handleLogout}
+                      className="px-5 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Logout</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/login" className="px-5 py-2 border border-light-green-600 text-light-green-600 rounded-lg hover:bg-light-green-50 transition-all duration-200">Login</Link>
+                    <Link to="/signup" className="px-5 py-2 bg-gradient-to-r from-light-green-500 to-light-green-600 text-white rounded-lg hover:shadow-lg transition-all duration-200">Signup</Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

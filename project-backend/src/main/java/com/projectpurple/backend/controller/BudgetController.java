@@ -1,6 +1,7 @@
 package com.projectpurple.backend.controller;
 
 import com.projectpurple.backend.model.Expense;
+import com.projectpurple.backend.model.Income;
 import com.projectpurple.backend.model.SavingsGoal;
 import com.projectpurple.backend.model.User;
 import com.projectpurple.backend.service.BudgetService;
@@ -75,6 +76,64 @@ public class BudgetController {
             return new ResponseEntity<>(Map.of("message", "Expense deleted successfully"), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(Map.of("error", "Expense not found"), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    // Income endpoints
+    @PostMapping("/income")
+    public ResponseEntity<?> addIncome(@RequestBody Income income, Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        Income savedIncome = budgetService.addIncome(income, user);
+        return new ResponseEntity<>(savedIncome, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/income")
+    public ResponseEntity<?> getIncome(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        List<Income> income = budgetService.getIncomeByUser(user);
+        return new ResponseEntity<>(income, HttpStatus.OK);
+    }
+
+    @GetMapping("/income/{id}")
+    public ResponseEntity<?> getIncomeById(@PathVariable Long id, Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        Optional<Income> income = budgetService.getIncomeById(id);
+        
+        if (income.isPresent() && income.get().getUser().getId().equals(user.getId())) {
+            return new ResponseEntity<>(income.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(Map.of("error", "Income not found"), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("/income/{id}")
+    public ResponseEntity<?> updateIncome(@PathVariable Long id, @RequestBody Income updatedIncome, Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        Optional<Income> incomeOptional = budgetService.getIncomeById(id);
+        
+        if (incomeOptional.isPresent() && incomeOptional.get().getUser().getId().equals(user.getId())) {
+            Income income = incomeOptional.get();
+            income.setAmount(updatedIncome.getAmount());
+            income.setCategory(updatedIncome.getCategory());
+            income.setDescription(updatedIncome.getDescription());
+            
+            Income savedIncome = budgetService.updateIncome(income);
+            return new ResponseEntity<>(savedIncome, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(Map.of("error", "Income not found"), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/income/{id}")
+    public ResponseEntity<?> deleteIncome(@PathVariable Long id, Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        Optional<Income> incomeOptional = budgetService.getIncomeById(id);
+        
+        if (incomeOptional.isPresent() && incomeOptional.get().getUser().getId().equals(user.getId())) {
+            budgetService.deleteIncome(id);
+            return new ResponseEntity<>(Map.of("message", "Income deleted successfully"), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(Map.of("error", "Income not found"), HttpStatus.NOT_FOUND);
         }
     }
 
